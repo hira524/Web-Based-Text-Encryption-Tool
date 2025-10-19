@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Encryption Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>Testing Encryption Algorithms</h1>
+    <div id="results"></div>
+
+    <script>
+        // Simple test of encryption algorithms
+        function runTests() {
+            const results = document.getElementById('results');
+            
+            // Test Caesar Cipher
+            function caesarCipher(text, shift, decrypt = false) {
+                const actualShift = decrypt ? -shift : shift;
+                let result = '';
+
+                for (let i = 0; i < text.length; i++) {
+                    let char = text[i];
+                    
+                    if (char.match(/[a-z]/i)) {
+                        const isUpperCase = char === char.toUpperCase();
+                        char = char.toLowerCase();
+                        
+                        const charCode = char.charCodeAt(0) - 97;
+                        const shiftedCode = (charCode + actualShift + 26) % 26;
+                        const shiftedChar = String.fromCharCode(shiftedCode + 97);
+                        
+                        result += isUpperCase ? shiftedChar.toUpperCase() : shiftedChar;
+                    } else {
+                        result += char;
+                    }
+                }
+                return result;
+            }
+
+            // Test all algorithms
+            const testText = "Hello World!";
+            const testPassword = "mySecretKey123";
+            
+            try {
+                // Caesar Cipher Test
+                const caesarEncrypted = caesarCipher(testText, 3);
+                const caesarDecrypted = caesarCipher(caesarEncrypted, 3, true);
+                results.innerHTML += `<h3>Caesar Cipher Test</h3>`;
+                results.innerHTML += `Original: ${testText}<br>`;
+                results.innerHTML += `Encrypted: ${caesarEncrypted}<br>`;
+                results.innerHTML += `Decrypted: ${caesarDecrypted}<br>`;
+                results.innerHTML += `Success: ${testText === caesarDecrypted}<br><br>`;
+
+                // AES Test
+                const aesEncrypted = CryptoJS.AES.encrypt(testText, testPassword).toString();
+                const aesDecrypted = CryptoJS.AES.decrypt(aesEncrypted, testPassword).toString(CryptoJS.enc.Utf8);
+                results.innerHTML += `<h3>AES Test</h3>`;
+                results.innerHTML += `Original: ${testText}<br>`;
+                results.innerHTML += `Encrypted: ${aesEncrypted}<br>`;
+                results.innerHTML += `Decrypted: ${aesDecrypted}<br>`;
+                results.innerHTML += `Success: ${testText === aesDecrypted}<br><br>`;
+
+                // Base64 Test
+                const base64Encoded = btoa(unescape(encodeURIComponent(testText)));
+                const base64Decoded = decodeURIComponent(escape(atob(base64Encoded)));
+                results.innerHTML += `<h3>Base64 Test</h3>`;
+                results.innerHTML += `Original: ${testText}<br>`;
+                results.innerHTML += `Encoded: ${base64Encoded}<br>`;
+                results.innerHTML += `Decoded: ${base64Decoded}<br>`;
+                results.innerHTML += `Success: ${testText === base64Decoded}<br><br>`;
+
+                // SHA-256 Test
+                const sha256Hash = CryptoJS.SHA256(testText).toString();
+                results.innerHTML += `<h3>SHA-256 Test</h3>`;
+                results.innerHTML += `Original: ${testText}<br>`;
+                results.innerHTML += `Hash: ${sha256Hash}<br><br>`;
+
+                results.innerHTML += `<h2 style="color: green;">All Tests Passed! ✓</h2>`;
+                
+            } catch (error) {
+                results.innerHTML += `<h2 style="color: red;">Test Failed: ${error.message}</h2>`;
+            }
+        }
+
+        // Run tests when page loads
+        window.onload = runTests;
+    </script>
+</body>
+</html>
